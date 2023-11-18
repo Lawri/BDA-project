@@ -1,0 +1,70 @@
+---
+title: "BDA Project"
+format: html
+editor: visual
+---
+
+```{r setup, include=FALSE}
+#| label: imports
+
+library(aaltobda)
+library(bayesplot)
+library(cmdstanr)
+library(dplyr)
+library(ggplot2)
+library(ggdist) # for stat_dotsinterval
+library(posterior)
+if(!require(brms)){
+    install.packages("brms")
+    library(brms)
+}
+
+# Set more readable themes with bigger font for plotting packages.
+ggplot2::theme_set(theme_minimal(base_size = 14))
+bayesplot::bayesplot_theme_set(theme_minimal(base_size = 14))
+
+# This registers CmdStan as the backend for compiling cmdstan-chunks.
+check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)
+register_knitr_engine(override = FALSE)
+```
+
+```{r}
+# Read & clean the data
+data = read.csv("data/WLD_RTFP_country_2023-11-06.csv")
+inflation_data = data[!is.na(data$Inflation),]
+```
+
+Pooled model
+
+```{r}
+
+fp <- brms::brm(
+  # This specifies the formula
+  Inflation ~ Price + Date + (1|Country)),
+  # This specifies the dataset
+  data = inflation_data,
+  # This specifies the observation model family
+  family = gaussian,
+  # This passes the priors specified above to brms
+  #prior = log_priors,
+  # This causes brms to cache the results
+  file = "models/pooled"
+)
+```
+
+Hierarchical model
+
+```{r}
+fh <- brms::brm(
+  # This specifies the formula
+  Inflation ~ 1 + Open + date + (date|ISO3),
+  # This specifies the dataset
+  data = inflation_data,
+  # This specifies the observation model family
+  family = lognormal,
+  # This passes the priors specified above to brms
+  prior = log_priors,
+  # This causes brms to cache the results
+  file = "models/hierarchical"
+)
+```
