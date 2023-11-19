@@ -46,7 +46,7 @@ Pooled model
 ```{r}
 fp <- brms::brm(
   # This specifies the formula
-  Inflation ~ Price + Date + (1|Country),
+  Inflation ~ Open + date + (1|ISO3),
   # This specifies the dataset
   data = inflation_data,
   # This specifies the observation model family
@@ -69,7 +69,7 @@ Hierarchical model
 ```{r}
 fh <- brms::brm(
   # This specifies the formula
-  Inflation ~ 1 + Open + date + (date|ISO3),
+  Inflation ~ Open + date + (Open|ISO3),
   # This specifies the dataset
   data = inflation_data,
   # This specifies the observation model family
@@ -85,4 +85,14 @@ Check the results
 
 ```{r}
 pp_check(fh)
+```
+
+Diagnostics
+
+```{r}
+summary(fp)
+```
+
+```{r}
+summary(fh)
 ```
