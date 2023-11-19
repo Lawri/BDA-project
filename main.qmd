@@ -28,28 +28,40 @@ check_cmdstan_toolchain(fix = TRUE, quiet = TRUE)
 register_knitr_engine(override = FALSE)
 ```
 
+Read & clean the data
+
 ```{r}
-# Read & clean the data
 data = read.csv("data/WLD_RTFP_country_2023-11-06.csv")
 inflation_data = data[!is.na(data$Inflation),]
+```
+
+Priors
+
+```{r}
+priors = c()
 ```
 
 Pooled model
 
 ```{r}
-
 fp <- brms::brm(
   # This specifies the formula
-  Inflation ~ Price + Date + (1|Country)),
+  Inflation ~ Price + Date + (1|Country),
   # This specifies the dataset
   data = inflation_data,
   # This specifies the observation model family
   family = gaussian,
   # This passes the priors specified above to brms
-  #prior = log_priors,
+  #prior = priors,
   # This causes brms to cache the results
   file = "models/pooled"
 )
+```
+
+Check the results
+
+```{r}
+pp_check(fp)
 ```
 
 Hierarchical model
@@ -61,10 +73,16 @@ fh <- brms::brm(
   # This specifies the dataset
   data = inflation_data,
   # This specifies the observation model family
-  family = lognormal,
+  family = gaussian,
   # This passes the priors specified above to brms
-  prior = log_priors,
+  #prior = priors,
   # This causes brms to cache the results
   file = "models/hierarchical"
 )
+```
+
+Check the results
+
+```{r}
+pp_check(fh)
 ```
