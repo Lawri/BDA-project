@@ -38,12 +38,13 @@ inflation_data = data[!is.na(data$Inflation),]
 Priors
 
 ```{r}
-priors_pooled = c(
+priors_pooled <- c(
   set_prior("normal(0, 10)", class = "b"),
   set_prior("normal(0, 5)", class = "Intercept"),
   set_prior("gamma(2, 0.1)", class = "nu") # Correct prior for degrees of freedom in Student's t
 )
-priors_hierarchical =  c(
+
+priors_hierarchical <-  c(
   set_prior("normal(0, 10)", class = "b"),
   set_prior("normal(0, 5)", class = "Intercept"),
   set_prior("gamma(2, 0.1)", class = "nu"), # Correct prior for degrees of freedom in Student's t
@@ -62,7 +63,7 @@ pooled_model <- brms::brm(
   # This specifies the observation model family
   family = student,
   # This passes the priors specified above to brms
-  prior = priors_pooled,
+  #prior = priors_pooled,
   # This causes brms to cache the results
   file = "models/pooled"
 )
@@ -97,19 +98,8 @@ summary(hierarchical_model)
 Posterior predictive checks
 
 ```{r}
-pp_check(pooled_model)
-pp_check(hierarchical_model)
-```
-
-```{r}
-#pp_check(pooled_model, type="intervals_grouped", group="country")
-#pp_check(hierarchical_model, type="intervals_grouped", group="country")
-```
-
-Predictive performance assessment
-
-```{r}
-
+pp_check(pooled_model) + xlim(-50, 100)
+pp_check(hierarchical_model) + xlim(-50, 100)
 ```
 
 Sensitivity analysis
@@ -166,8 +156,8 @@ pooled_model_2
 hierarchical_model_2
 summary(pooled_model_2)
 summary(hierarchical_model_2)
-pp_check(pooled_model_2)
-pp_check(hierarchical_model_2)
+pp_check(pooled_model_2) + xlim(-50, 100)
+pp_check(hierarchical_model_2) + xlim(-50, 100)
 #pp_check(pooled_model, type="intervals_grouped", group="country")
 #pp_check(hierarchical_model, type="intervals_grouped", group="country")
 ```
