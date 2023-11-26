@@ -103,7 +103,6 @@ pp_check(hierarchical_model) + xlim(-50, 100)
 Sensitivity analysis
 
 ```{r}
-
 # Stronger priors for the pooled model
 priors_pooled_2 <- c(
   set_prior("normal(0, 2.5)", class = "b"),
@@ -147,9 +146,7 @@ hierarchical_model_2 <- brms::brm(
   # This causes brms to cache the results
   file = "models/hierarchical_2"
 )
-```
 
-```{r}
 summary(pooled_model_2)
 summary(hierarchical_model_2)
 pp_check(pooled_model_2) + xlim(-50, 100)
