@@ -67,7 +67,6 @@ pooled_model <- brms::brm(
   # This causes brms to cache the results
   file = "models/pooled"
 )
-pooled_model
 ```
 
 Hierarchical model
@@ -85,7 +84,6 @@ hierarchical_model <- brms::brm(
   # This causes brms to cache the results
   file = "models/hierarchical"
 )
-hierarchical_model 
 ```
 
 Convergence diagnostics
@@ -152,8 +150,6 @@ hierarchical_model_2 <- brms::brm(
 ```
 
 ```{r}
-pooled_model_2
-hierarchical_model_2
 summary(pooled_model_2)
 summary(hierarchical_model_2)
 pp_check(pooled_model_2) + xlim(-50, 100)
