@@ -6,7 +6,7 @@ editor: visual
 
 ```{r setup, include=FALSE}
 #| label: imports
-
+set.seed(550)
 library(aaltobda)
 library(bayesplot)
 library(cmdstanr)
@@ -38,61 +38,138 @@ inflation_data = data[!is.na(data$Inflation),]
 Priors
 
 ```{r}
-priors = c()
+priors_pooled = c(
+  set_prior("normal(0, 10)", class = "b"),
+  set_prior("normal(0, 5)", class = "Intercept"),
+  set_prior("gamma(2, 0.1)", class = "nu") # Correct prior for degrees of freedom in Student's t
+)
+priors_hierarchical =  c(
+  set_prior("normal(0, 10)", class = "b"),
+  set_prior("normal(0, 5)", class = "Intercept"),
+  set_prior("gamma(2, 0.1)", class = "nu"), # Correct prior for degrees of freedom in Student's t
+  set_prior("lkj(2)", class = "cor") # LKJ prior for the correlation matrix of the group-level effects
+)
 ```
 
 Pooled model
 
 ```{r}
-fp <- brms::brm(
+pooled_model <- brms::brm(
   # This specifies the formula
-  Inflation ~ Open + date + (1|ISO3),
+  Inflation ~ Close,
   # This specifies the dataset
   data = inflation_data,
   # This specifies the observation model family
-  family = gaussian,
+  family = student,
   # This passes the priors specified above to brms
-  #prior = priors,
+  prior = priors_pooled,
   # This causes brms to cache the results
   file = "models/pooled"
 )
-```
-
-Check the results
-
-```{r}
-pp_check(fp)
+pooled_model
 ```
 
 Hierarchical model
 
 ```{r}
-fh <- brms::brm(
+hierarchical_model <- brms::brm(
   # This specifies the formula
-  Inflation ~ Open + date + (Open|ISO3),
+  Inflation ~ Close + (1 + Close | country),
   # This specifies the dataset
   data = inflation_data,
   # This specifies the observation model family
-  family = gaussian,
+  family = student,
   # This passes the priors specified above to brms
-  #prior = priors,
+  prior = priors_hierarchical,
   # This causes brms to cache the results
   file = "models/hierarchical"
 )
+hierarchical_model 
 ```
 
-Check the results
-
-```{r}
-pp_check(fh)
-```
-
-Diagnostics
+Convergence diagnostics
 
 ```{r}
 summary(fp)
+summary(fh)
+```
+
+Posterior predictive checks
+
+```{r}
+pp_check(pooled_model)
+pp_check(hierarchical_model)
 ```
 
 ```{r}
-summary(fh)
+pp_check(pooled_model, type="intervals_grouped", group="country")
+pp_check(hierarchical_model, type="intervals_grouped", group="country")
+```
+
+Predictive performance assessment
+
+```{r}
+
+```
+
+Sensitivity analysis
+
+```{r}
+
+# Stronger priors for the pooled model
+priors_pooled_2 <- c(
+  set_prior("normal(0, 2.5)", class = "b"),
+  set_prior("normal(0, 1)", class = "Intercept"),
+  set_prior("gamma(2, 0.1)", class = "nu") # Assuming degrees of freedom to allow some robustness to outliers
+)
+
+# Stronger priors for the hierarchical model
+priors_hierarchical_2 <- c(
+  set_prior("normal(0, 2.5)", class = "b"),
+  set_prior("normal(0, 1)", class = "Intercept"),
+  set_prior("gamma(2, 0.1)", class = "nu"),
+  set_prior("lkj(2)", class = "cor"), # Keeping the LKJ prior for correlation matrix reasonable
+  set_prior("normal(0, 2.5)", class = "sd"), # Stronger prior for the standard deviation of group-level effects
+  set_prior("normal(0, 2.5)", class = "Intercept", group = "country") # Strong prior for the random intercepts for country
+)
+
+
+pooled_model_2 <- brms::brm(
+  # This specifies the formula
+  Inflation ~ Close,
+  # This specifies the dataset
+  data = inflation_data,
+  # This specifies the observation model family
+  family = student,
+  # This passes the priors specified above to brms
+  prior = priors_pooled,
+  # This causes brms to cache the results
+  file = "models/pooled_2"
+)
+
+hierarchical_model_2 <- brms::brm(
+  # This specifies the formula
+  Inflation ~ Close + (1 + Close | country),
+  # This specifies the dataset
+  data = inflation_data,
+  # This specifies the observation model family
+  family = student,
+  # This passes the priors specified above to brms
+  prior = priors_hierarchical,
+  # This causes brms to cache the results
+  file = "models/hierarchical_2"
+)
+
+pooled_model_2
+hierarchical_model_2
+```
+
+Model comparison (LOO-CV)
+
+```{r}
+loo_p <- loo(pooled_model)
+loo_h <- loo(hierarchical_model)
+loo_p
+loo_h
+loo_compare(loo_p, loo_h)
 ```
