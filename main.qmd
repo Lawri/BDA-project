@@ -47,8 +47,7 @@ priors_pooled <- c(
 priors_hierarchical <-  c(
   set_prior("normal(0, 10)", class = "b"),
   set_prior("normal(0, 5)", class = "Intercept"),
-  set_prior("gamma(2, 0.1)", class = "nu"), # Correct prior for degrees of freedom in Student's t
-  set_prior("lkj(2)", class = "cor") # LKJ prior for the correlation matrix of the group-level effects
+  set_prior("gamma(2, 0.1)", class = "nu") # Correct prior for degrees of freedom in Student's t
 )
 ```
 
@@ -114,10 +113,7 @@ priors_pooled_2 <- c(
 priors_hierarchical_2 <- c(
   set_prior("normal(0, 2.5)", class = "b"),
   set_prior("normal(0, 1)", class = "Intercept"),
-  set_prior("gamma(2, 0.1)", class = "nu"),
-  set_prior("lkj(2)", class = "cor"), # LKJ prior for the correlation matrix of the group-level effects
-  set_prior("normal(0, 2.5)", class = "sd"), # Stronger prior for the standard deviation of group-level effects
-  set_prior("normal(0, 1)", class = "sd", group = "country") # Strong prior for the random intercepts standard deviation for country
+  set_prior("gamma(2, 0.1)", class = "nu")
 )
 
 
