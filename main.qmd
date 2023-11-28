@@ -38,13 +38,7 @@ inflation_data = data[!is.na(data$Inflation),]
 Priors
 
 ```{r}
-priors_pooled <- c(
-  set_prior("normal(0, 10)", class = "b"),
-  set_prior("normal(0, 5)", class = "Intercept"),
-  set_prior("gamma(2, 0.1)", class = "nu") # Correct prior for degrees of freedom in Student's t
-)
-
-priors_hierarchical <-  c(
+priors <- c(
   set_prior("normal(0, 10)", class = "b"),
   set_prior("normal(0, 5)", class = "Intercept"),
   set_prior("gamma(2, 0.1)", class = "nu") # Correct prior for degrees of freedom in Student's t
@@ -62,7 +56,7 @@ pooled_model <- brms::brm(
   # This specifies the observation model family
   family = student,
   # This passes the priors specified above to brms
-  prior = priors_pooled,
+  prior = priors,
   # This causes brms to cache the results
   file = "models/pooled"
 )
@@ -79,7 +73,7 @@ hierarchical_model <- brms::brm(
   # This specifies the observation model family
   family = student,
   # This passes the priors specified above to brms
-  prior = priors_hierarchical,
+  prior = priors,
   # This causes brms to cache the results
   file = "models/hierarchical"
 )
@@ -103,17 +97,10 @@ Sensitivity analysis
 
 ```{r}
 # Stronger priors for the pooled model
-priors_pooled_2 <- c(
+priors_2 <- c(
   set_prior("normal(0, 2.5)", class = "b"),
   set_prior("normal(0, 1)", class = "Intercept"),
   set_prior("gamma(2, 0.1)", class = "nu") # Assuming degrees of freedom to allow some robustness to outliers
-)
-
-# Stronger priors for the hierarchical model
-priors_hierarchical_2 <- c(
-  set_prior("normal(0, 2.5)", class = "b"),
-  set_prior("normal(0, 1)", class = "Intercept"),
-  set_prior("gamma(2, 0.1)", class = "nu")
 )
 
 
@@ -125,7 +112,7 @@ pooled_model_2 <- brms::brm(
   # This specifies the observation model family
   family = student,
   # This passes the priors specified above to brms
-  prior = priors_pooled_2,
+  prior = priors_2,
   # This causes brms to cache the results
   file = "models/pooled_2"
 )
@@ -138,7 +125,7 @@ hierarchical_model_2 <- brms::brm(
   # This specifies the observation model family
   family = student,
   # This passes the priors specified above to brms
-  prior = priors_hierarchical_2,
+  prior = priors_2,
   # This causes brms to cache the results
   file = "models/hierarchical_2"
 )
